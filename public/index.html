@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Padlet AI Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0c0b0a;
+  --surface:#141312;
+  --surface2:#1c1b19;
+  --surface3:#242220;
+  --border:#2a2825;
+  --border2:#333128;
+  --accent:#f26419;
+  --accent-soft:rgba(242,100,25,0.12);
+  --accent2:#fbbf24;
+  --accent2-soft:rgba(251,191,36,0.1);
+  --green:#34d399;
+  --green-soft:rgba(52,211,153,0.1);
+  --red:#f87171;
+  --red-soft:rgba(248,113,113,0.1);
+  --blue:#60a5fa;
+  --text:#f5f2ee;
+  --text2:#a09890;
+  --text3:#5c5650;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ─── TOPBAR ─────────────────────────────────────────── */
+.topbar{
+  display:flex;align-items:center;
+  padding:0 20px;
+  height:54px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  gap:16px;
+  flex-shrink:0;
+  z-index:100;
+}
+.logo{
+  font-family:'Syne',sans-serif;
+  font-size:17px;
+  font-weight:800;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+  white-space:nowrap;
+}
+.logo-dot{
+  width:10px;height:10px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.85)}}
+
+.topbar-tabs{
+  display:flex;gap:2px;
+  background:var(--surface2);
+  border-radius:var(--radius-sm);
+  padding:3px;
+  margin-left:12px;
+}
+.tab-btn{
+  font-family:'Syne',sans-serif;
+  font-size:12px;font-weight:600;
+  padding:6px 14px;
+  border:none;background:transparent;
+  color:var(--text3);cursor:pointer;
+  border-radius:6px;
+  transition:all 0.18s;
+  white-space:nowrap;
+}
+.tab-btn.active{background:var(--surface3);color:var(--text);}
+.tab-btn:hover:not(.active){color:var(--text2);}
+
+.topbar-right{
+  margin-left:auto;
+  display:flex;align-items:center;gap:10px;
+}
+.cred-status{
+  font-size:11px;font-weight:500;
+  padding:4px 10px;
+  border-radius:20px;
+  background:var(--red-soft);
+  color:var(--red);
+  border:1px solid rgba(248,113,113,0.2);
+  cursor:pointer;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.cred-status.ready{
+  background:var(--green-soft);
+  color:var(--green);
+  border-color:rgba(52,211,153,0.2);
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+.app-layout{
+  display:flex;
+  flex:1;
+  overflow:hidden;
+}
+
+/* ─── SIDEBAR ────────────────────────────────────────── */
+.sidebar{
+  width:280px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  flex-shrink:0;
+  overflow:hidden;
+}
+.sidebar-section{
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-label{
+  font-family:'Syne',sans-serif;
+  font-size:10px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:10px;
+}
+.field{margin-bottom:10px;}
+.field:last-child{margin-bottom:0;}
+.field label{
+  display:block;font-size:11px;font-weight:500;
+  color:var(--text2);margin-bottom:4px;
+}
+.field input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  padding:8px 10px;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:12px;color:var(--text);
+  outline:none;transition:border-color 0.2s;
+}
+.field input:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--text3);}
+.field input[type=password]{font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;font-size:11px;}
+
+.sidebar-tips{
+  flex:1;overflow-y:auto;padding:14px 16px;
+}
+.tip-card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:border-color 0.2s,transform 0.15s;
+}
+.tip-card:hover{border-color:var(--accent);transform:translateX(2px);}
+.tip-icon{font-size:14px;margin-bottom:4px;}
+.tip-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.tip-desc{font-size:11px;color:var(--text2);line-height:1.4;}
+
+/* ─── MAIN CONTENT ───────────────────────────────────── */
+.main{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;
+}
+
+/* ─── PANELS ─────────────────────────────────────────── */
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.panel.active{display:flex;}
+
+/* ─── CREATE PANEL ───────────────────────────────────── */
+.create-layout{
+  display:flex;flex:1;overflow:hidden;
+}
+.create-left{
+  flex:1;padding:24px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:16px;
+}
+.create-right{
+  width:380px;
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  background:var(--surface);
+}
+
+.section-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;
+}
+.section-title{
+  font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:700;
+  color:var(--text2);
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-title .icon{color:var(--accent);}
+
+textarea.prompt-area{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:13px;color:var(--text);
+  resize:none;min-height:100px;
+  outline:none;line-height:1.6;
+  transition:border-color 0.2s;
+}
+textarea.prompt-area:focus{border-color:var(--accent);}
+textarea.prompt-area::placeholder{color:var(--text3);}
+
+/* Post count */
+.post-count-row{
+  display:flex;align-items:center;gap:10px;margin-top:10px;
+}
+.post-count-row label{font-size:12px;color:var(--text2);white-space:nowrap;}
+.post-count-row input[type=range]{
+  flex:1;accent-color:var(--accent);
+}
+.count-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:500;
+  color:var(--accent);
+  background:var(--accent-soft);
+  padding:3px 8px;border-radius:4px;
+  min-width:36px;text-align:center;
+}
+
+/* File drop zone */
+.drop-zone{
+  border:2px dashed var(--border2);
+  border-radius:var(--radius-sm);
+  padding:20px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color 0.2s,background 0.2s;
+  position:relative;
+}
+.drop-zone:hover,.drop-zone.drag-over{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+}
+.drop-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.drop-zone-icon{font-size:24px;margin-bottom:6px;}
+.drop-zone-text{font-size:12px;color:var(--text2);}
+.drop-zone-hint{font-size:11px;color:var(--text3);margin-top:3px;}
+.file-preview{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  display:flex;align-items:center;gap:10px;margin-top:8px;
+}
+.file-preview-icon{font-size:18px;}
+.file-preview-name{font-size:12px;font-weight:500;color:var(--text);}
+.file-preview-size{font-size:11px;color:var(--text3);}
+.file-remove{margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;}
+.file-remove:hover{color:var(--red);}
+
+/* Buttons */
+.btn{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  padding:10px 18px;border:none;border-radius:var(--radius-sm);
+  cursor:pointer;transition:all 0.18s;
+  display:inline-flex;align-items:center;gap:7px;
+}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover:not(:disabled){opacity:0.88;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+.btn-secondary{background:var(--surface3);color:var(--text2);border:1px solid var(--border2);}
+.btn-secondary:hover{color:var(--text);border-color:var(--border2);}
+.btn-full{width:100%;justify-content:center;}
+
+/* Preview list */
+.preview-list{
+  display:flex;flex-direction:column;gap:8px;margin-top:10px;
+}
+.preview-post{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px;
+  animation:slideIn 0.25s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.preview-subject{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  color:var(--text);margin-bottom:5px;
+}
+.preview-body{font-size:12px;color:var(--text2);line-height:1.5;}
+.preview-status{
+  font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  margin-top:6px;
+}
+.preview-status.pending{color:var(--text3);}
+.preview-status.posting{color:var(--accent2);}
+.preview-status.done{color:var(--green);}
+.preview-status.failed{color:var(--red);}
+
+/* Right panel – post log */
+.create-right-header{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.log-empty{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  color:var(--text3);gap:8px;padding:20px;text-align:center;
+}
+.log-empty-icon{font-size:32px;opacity:0.4;}
+.log-empty-text{font-size:12px;}
+.log-list{flex:1;overflow-y:auto;padding:12px;}
+.log-item{
+  padding:10px;
+  border-radius:var(--radius-sm);
+  margin-bottom:6px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  font-size:12px;
+}
+.log-item-title{font-weight:600;color:var(--text);margin-bottom:3px;}
+.log-item-meta{color:var(--text3);font-size:11px;}
+.log-item.success{border-left:3px solid var(--green);}
+.log-item.error{border-left:3px solid var(--red);}
+.log-link{
+  display:inline-flex;align-items:center;gap:3px;
+  color:var(--green);font-size:11px;
+  text-decoration:none;margin-top:4px;
+  border-bottom:1px dashed rgba(52,211,153,0.4);
+}
+
+/* ─── CHAT PANEL ─────────────────────────────────────── */
+.chat-layout{
+  display:flex;flex:1;overflow:hidden;
+}
+.chat-main{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:20px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.message{
+  display:flex;gap:10px;max-width:800px;
+  animation:slideIn 0.2s ease;
+}
+.message.user{align-self:flex-end;flex-direction:row-reverse;}
+.message-avatar{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;margin-top:2px;
+}
+.message.assistant .message-avatar{background:var(--accent);color:#fff;}
+.message.user .message-avatar{background:var(--surface3);color:var(--text2);}
+.message-content{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:12px 15px;
+  font-size:13px;line-height:1.65;
+  max-width:680px;
+}
+.message.user .message-content{
+  background:var(--accent-soft);
+  border-color:rgba(242,100,25,0.2);
+}
+.message-content code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  padding:1px 5px;border-radius:4px;
+  color:var(--accent2);
+}
+.message-content pre{
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  padding:12px;
+  overflow-x:auto;
+  margin:8px 0;
+}
+.message-content pre code{
+  background:none;border:none;padding:0;color:var(--text2);font-size:11px;
+}
+.message-content p{margin-bottom:6px;}
+.message-content p:last-child{margin-bottom:0;}
+.message-content ul,ol{padding-left:18px;margin:6px 0;}
+.message-content li{margin-bottom:3px;}
+.message-content strong{color:var(--text);font-weight:600;}
+.message-content h3,.message-content h4{
+  font-family:'Syne',sans-serif;font-weight:700;
+  color:var(--accent);margin:10px 0 5px;font-size:13px;
+}
+
+.typing-indicator{
+  display:flex;gap:4px;align-items:center;padding:4px 0;
+}
+.typing-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--text3);
+  animation:typing 1.2s infinite;
+}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,80%,100%{transform:scale(0.8);opacity:0.4}40%{transform:scale(1);opacity:1}}
+
+.chat-input-area{
+  border-top:1px solid var(--border);
+  padding:14px 20px;
+  background:var(--surface);
+  display:flex;flex-direction:column;gap:8px;
+}
+.chat-input-row{
+  display:flex;gap:10px;align-items:flex-end;
+}
+.chat-textarea{
+  flex:1;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  padding:10px 14px;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:13px;color:var(--text);
+  resize:none;max-height:120px;min-height:42px;
+  outline:none;line-height:1.5;
+  transition:border-color 0.2s;
+}
+.chat-textarea:focus{border-color:var(--accent);}
+.chat-textarea::placeholder{color:var(--text3);}
+.chat-send{
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--radius-sm);
+  width:40px;height:40px;
+  cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:opacity 0.2s;
+}
+.chat-send:disabled{opacity:0.35;cursor:not-allowed;}
+.chat-send:hover:not(:disabled){opacity:0.85;}
+
+.quick-actions{
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.quick-btn{
+  font-size:11px;font-weight:500;
+  padding:4px 10px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:20px;color:var(--text2);
+  cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.quick-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ─── DEBUG PANEL ────────────────────────────────────── */
+.debug-layout{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;}
+.debug-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.code-block{
+  background:var(--bg);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text2);
+  overflow-x:auto;white-space:pre;max-height:200px;overflow-y:auto;
+  line-height:1.6;
+}
+.lang-tabs{display:flex;gap:4px;margin-bottom:10px;}
+.lang-tab{
+  font-size:11px;font-weight:600;padding:4px 10px;
+  border-radius:4px;border:1px solid var(--border2);
+  background:transparent;color:var(--text3);cursor:pointer;
+}
+.lang-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.test-btn{
+  background:var(--surface3);color:var(--text2);
+  border:1px solid var(--border2);border-radius:var(--radius-sm);
+  padding:8px 14px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;margin-top:8px;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.test-btn:hover{border-color:var(--accent);color:var(--accent);}
+.test-result{
+  margin-top:8px;padding:10px;border-radius:var(--radius-sm);
+  font-size:12px;font-family:'JetBrains Mono',monospace;
+  white-space:pre-wrap;max-height:120px;overflow-y:auto;
+  display:none;
+}
+.test-result.visible{display:block;}
+.test-result.success{background:var(--green-soft);border:1px solid rgba(52,211,153,0.2);color:var(--green);}
+.test-result.error{background:var(--red-soft);border:1px solid rgba(248,113,113,0.2);color:var(--red);}
+
+/* ─── SETTINGS MODAL ─────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  display:none;align-items:center;justify-content:center;z-index:999;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:24px;width:420px;
+  box-shadow:var(--shadow);
+}
+.modal-title{
+  font-family:'Syne',sans-serif;font-size:16px;font-weight:800;
+  color:var(--text);margin-bottom:18px;
+}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+
+/* ─── STATUS BAR ─────────────────────────────────────── */
+.status-bar{
+  padding:8px 16px;
+  font-size:11px;color:var(--text3);
+  border-top:1px solid var(--border);
+  background:var(--surface);
+  display:flex;align-items:center;gap:8px;
+  flex-shrink:0;
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+.status-dot.active{background:var(--green);animation:pulse 1.5s infinite;}
+
+/* ─── SCROLLBAR ──────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text3);}
+
+/* ─── LOADER ─────────────────────────────────────────── */
+.spinner{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.2);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.badge{
+  font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;
+}
+.badge-orange{background:var(--accent-soft);color:var(--accent);}
+.badge-green{background:var(--green-soft);color:var(--green);}
+
+/* toast */
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+.toast{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:10px 14px;
+  font-size:12px;font-weight:500;color:var(--text);
+  box-shadow:var(--shadow);
+  animation:toastIn 0.3s ease;
+  max-width:300px;
+}
+.toast.success{border-left:3px solid var(--green);}
+.toast.error{border-left:3px solid var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .debug-row{grid-template-columns:1fr;}
+  .create-right{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Padlet AI Studio
+  </div>
+  <div class="topbar-tabs">
+    <button class="tab-btn active" onclick="switchPanel('create')">✦ Create Posts</button>
+    <button class="tab-btn" onclick="switchPanel('chat')">⬡ AI Assistant</button>
+    <button class="tab-btn" onclick="switchPanel('debug')">⌥ Debug & Code</button>
+  </div>
+  <div class="topbar-right">
+    <span class="cred-status" id="credStatus" onclick="openModal()">⚠ Set credentials</span>
+  </div>
+</div>
+
+<!-- App Layout -->
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Credentials</div>
+      <div class="field">
+        <label>Anthropic API Key</label>
+        <input type="password" id="sideAnthropicKey" placeholder="sk-ant-..." oninput="syncCreds()"/>
+      </div>
+      <div class="field">
+        <label>Padlet API Key</label>
+        <input type="password" id="sidePadletKey" placeholder="Your X-API-KEY" oninput="syncCreds()"/>
+      </div>
+      <div class="field">
+        <label>Board ID</label>
+        <input type="text" id="sideBoardId" placeholder="16-char board ID" oninput="syncCreds()"/>
+      </div>
+    </div>
+    <div class="sidebar-tips">
+      <div class="sidebar-label">Creative Prompts</div>
+      <div class="tip-card" onclick="useTip(this)">
+        <div class="tip-icon">🗺️</div>
+        <div class="tip-title">Heritage Walking Trail</div>
+        <div class="tip-desc" data-prompt="Create 5 posts for a Singapore heritage walking trail, each covering a different landmark with historical facts and a local story.">Heritage trail posts with local stories</div>
+      </div>
+      <div class="tip-card" onclick="useTip(this)">
+        <div class="tip-icon">🎨</div>
+        <div class="tip-title">Design Critique Board</div>
+        <div class="tip-desc" data-prompt="Generate 4 posts for a design critique board: one for composition, one for typography, one for colour theory, and one for user experience. Each should include reflective questions for students.">Structured crit with student questions</div>
+      </div>
+      <div class="tip-card" onclick="useTip(this)">
+        <div class="tip-icon">💡</div>
+        <div class="tip-title">Ideation Prompts</div>
+        <div class="tip-desc" data-prompt="Create 6 creative ideation prompts for a communication design brainstorming session. Each should be a short, provocative question that sparks visual thinking.">Brainstorm starters for CMD</div>
+      </div>
+      <div class="tip-card" onclick="useTip(this)">
+        <div class="tip-icon">📚</div>
+        <div class="tip-title">Reading List Curation</div>
+        <div class="tip-desc" data-prompt="Generate 5 posts for a design reading list board. Each post should recommend one book or article with a short summary and why it matters for design students.">Curated reads for design students</div>
+      </div>
+      <div class="tip-card" onclick="useTip(this)">
+        <div class="tip-icon">🌏</div>
+        <div class="tip-title">Student Showcase</div>
+        <div class="tip-desc" data-prompt="Create 4 posts that celebrate student work in a CMD showcase board. Include a title, a short description of the project, and an encouraging reflection question.">Celebrate and reflect on student work</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- ─── CREATE PANEL ─── -->
+    <div class="panel active" id="panel-create">
+      <div class="create-layout">
+        <div class="create-left">
+
+          <!-- Prompt -->
+          <div class="section-card">
+            <div class="section-title"><span class="icon">✦</span> Describe your posts</div>
+            <textarea class="prompt-area" id="mainPrompt" rows="4"
+              placeholder="e.g. Create 3 posts about design thinking for first-year students. Keep the tone encouraging and end each with a reflection question..."></textarea>
+            <div class="post-count-row">
+              <label>Number of posts</label>
+              <input type="range" min="1" max="10" value="3" id="postCount" oninput="document.getElementById('countBadge').textContent=this.value"/>
+              <div class="count-badge" id="countBadge">3</div>
+            </div>
+          </div>
+
+          <!-- File Upload -->
+          <div class="section-card">
+            <div class="section-title"><span class="icon">📎</span> Upload a file <span class="badge badge-orange" style="margin-left:4px;">Optional</span></div>
+            <div class="drop-zone" id="dropZone">
+              <input type="file" id="fileInput" accept=".pdf,.docx,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.gif,.webp" onchange="handleFile(this.files[0])"/>
+              <div class="drop-zone-icon">📂</div>
+              <div class="drop-zone-text">Drop a file or click to browse</div>
+              <div class="drop-zone-hint">PDF, Word, Excel, CSV, TXT, Images — up to 20 MB</div>
+            </div>
+            <div class="file-preview" id="filePreview" style="display:none;">
+              <div class="file-preview-icon" id="fileIcon">📄</div>
+              <div>
+                <div class="file-preview-name" id="fileName">—</div>
+                <div class="file-preview-size" id="fileSize">—</div>
+              </div>
+              <button class="file-remove" onclick="clearFile()">✕</button>
+            </div>
+          </div>
+
+          <!-- Generate button -->
+          <button class="btn btn-primary btn-full" id="generateBtn" onclick="generateAndPost()">
+            <span>✦ Generate &amp; Post to Padlet</span>
+          </button>
+
+          <!-- Generated post previews -->
+          <div id="previewSection" style="display:none;">
+            <div class="section-card">
+              <div class="section-title"><span class="icon">👁</span> Generated posts</div>
+              <div class="preview-list" id="previewList"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: log -->
+        <div class="create-right">
+          <div class="create-right-header">
+            <span>Post Log</span>
+            <button class="btn btn-secondary" style="padding:4px 10px;font-size:11px;" onclick="clearLog()">Clear</button>
+          </div>
+          <div id="logEmpty" class="log-empty">
+            <div class="log-empty-icon">📋</div>
+            <div class="log-empty-text">Posts you send will appear here</div>
+          </div>
+          <div class="log-list" id="logList" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── CHAT PANEL ─── -->
+    <div class="panel" id="panel-chat">
+      <div class="chat-layout">
+        <div class="chat-main">
+          <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+              <div class="message-avatar">P</div>
+              <div class="message-content">
+                <p>👋 Hi! I'm your <strong>Padlet AI expert</strong> — I know everything about Padlet: its API, features, creative uses, and best practices.</p>
+                <p>I can help you:</p>
+                <ul>
+                  <li>Explore creative ways to use Padlet boards, sandboxes, and timelines</li>
+                  <li>Debug API calls in Shell, Node, Ruby, PHP, or Python</li>
+                  <li>Design board structures for education, events, or portfolios</li>
+                  <li>Troubleshoot errors and optimise your workflow</li>
+                </ul>
+                <p>What would you like to explore?</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="quick-actions">
+              <button class="quick-btn" onclick="quickAsk('How do I structure a Padlet board for a student showcase?')">🎓 Student showcase</button>
+              <button class="quick-btn" onclick="quickAsk('What Padlet layouts work best for visual storytelling?')">🖼 Best layouts</button>
+              <button class="quick-btn" onclick="quickAsk('How do I use Padlet API to bulk-create posts from a spreadsheet?')">📊 Bulk from spreadsheet</button>
+              <button class="quick-btn" onclick="quickAsk('What are the most creative uses of Padlet for design education?')">✨ Creative ideas</button>
+              <button class="quick-btn" onclick="quickAsk('How do I handle Padlet API rate limiting?')">⚡ Rate limiting</button>
+            </div>
+            <div class="chat-input-row">
+              <textarea class="chat-textarea" id="chatInput" rows="1" placeholder="Ask anything about Padlet…"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+                oninput="autoResize(this)"></textarea>
+              <button class="chat-send" id="chatSend" onclick="sendChat()">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DEBUG PANEL ─── -->
+    <div class="panel" id="panel-debug">
+      <div class="debug-layout">
+
+        <div class="section-card">
+          <div class="section-title"><span class="icon">🔌</span> Connection Test</div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Verify your Padlet API key and board ID are working correctly.</p>
+          <button class="test-btn" onclick="testConnection()">▶ Test connection</button>
+          <div class="test-result" id="connResult"></div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title"><span class="icon">⌥</span> API Code Snippets</div>
+          <div class="lang-tabs">
+            <button class="lang-tab active" onclick="switchLang('shell',this)">Shell</button>
+            <button class="lang-tab" onclick="switchLang('node',this)">Node.js</button>
+            <button class="lang-tab" onclick="switchLang('python',this)">Python</button>
+            <button class="lang-tab" onclick="switchLang('ruby',this)">Ruby</button>
+            <button class="lang-tab" onclick="switchLang('php',this)">PHP</button>
+          </div>
+          <div class="code-block" id="codeBlock"></div>
+          <button class="test-btn" onclick="copyCode()">📋 Copy snippet</button>
+        </div>
+
+        <div class="debug-row">
+          <div class="section-card">
+            <div class="section-title"><span class="icon">📋</span> Request Inspector</div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:10px;">Paste an error or API response to diagnose it.</p>
+            <textarea class="prompt-area" id="debugInput" style="min-height:80px;font-family:'JetBrains Mono',monospace;font-size:11px;" placeholder='Paste your error or API response JSON here…'></textarea>
+            <button class="test-btn" style="margin-top:8px;" onclick="diagnoseError()">🔍 Diagnose</button>
+            <div class="test-result" id="diagResult"></div>
+          </div>
+          <div class="section-card">
+            <div class="section-title"><span class="icon">📖</span> Common Errors</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="tip-card" style="cursor:default;">
+                <div class="tip-title" style="color:var(--red);">401 Unauthorised</div>
+                <div class="tip-desc">API key missing or invalid. Check your <code style="font-family:monospace;font-size:10px;">X-API-KEY</code> header.</div>
+              </div>
+              <div class="tip-card" style="cursor:default;">
+                <div class="tip-title" style="color:var(--red);">403 Forbidden</div>
+                <div class="tip-desc">You are not an admin/owner of this board. Check your board permissions.</div>
+              </div>
+              <div class="tip-card" style="cursor:default;">
+                <div class="tip-title" style="color:var(--red);">404 Not Found</div>
+                <div class="tip-desc">Board ID or post ID is incorrect. Verify the 16-character board ID.</div>
+              </div>
+              <div class="tip-card" style="cursor:default;">
+                <div class="tip-title" style="color:var(--accent2);">429 Rate Limited</div>
+                <div class="tip-desc">Too many requests. Add a 300ms delay between bulk posts.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-layout -->
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusMsg">Ready</span>
+</div>
+
+<!-- Credentials Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">🔑 Configure Credentials</div>
+    <div class="field">
+      <label>Anthropic API Key (for AI features)</label>
+      <input type="password" id="modalAnthropicKey" placeholder="sk-ant-..."/>
+    </div>
+    <div class="field">
+      <label>Padlet API Key</label>
+      <input type="password" id="modalPadletKey" placeholder="Your X-API-KEY from Padlet settings"/>
+    </div>
+    <div class="field">
+      <label>Board ID</label>
+      <input type="text" id="modalBoardId" placeholder="16-character string from your Padlet URL"/>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.5;">
+      Keys are stored in your browser's session only and never sent anywhere except the Padlet and Anthropic APIs.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveModal()">Save & Connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+const state = {
+  anthropicKey: '',
+  padletKey: '',
+  boardId: '',
+  uploadedFile: null,
+  chatHistory: [],
+};
+
+// ─── CREDENTIALS ─────────────────────────────────────────
+function syncCreds(){
+  state.anthropicKey = document.getElementById('sideAnthropicKey').value.trim();
+  state.padletKey    = document.getElementById('sidePadletKey').value.trim();
+  state.boardId      = document.getElementById('sideBoardId').value.trim();
+  updateCredStatus();
+  updateCodeSnippet();
+}
+function updateCredStatus(){
+  const el = document.getElementById('credStatus');
+  const ready = state.padletKey && state.boardId;
+  el.textContent = ready ? '✓ Connected' : '⚠ Set credentials';
+  el.className = ready ? 'cred-status ready' : 'cred-status';
+}
+function openModal(){
+  document.getElementById('modalAnthropicKey').value = state.anthropicKey;
+  document.getElementById('modalPadletKey').value    = state.padletKey;
+  document.getElementById('modalBoardId').value      = state.boardId;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function saveModal(){
+  state.anthropicKey = document.getElementById('modalAnthropicKey').value.trim();
+  state.padletKey    = document.getElementById('modalPadletKey').value.trim();
+  state.boardId      = document.getElementById('modalBoardId').value.trim();
+  document.getElementById('sideAnthropicKey').value = state.anthropicKey;
+  document.getElementById('sidePadletKey').value    = state.padletKey;
+  document.getElementById('sideBoardId').value      = state.boardId;
+  updateCredStatus();
+  updateCodeSnippet();
+  closeModal();
+  toast('Credentials saved', 'success');
+}
+
+// ─── PANEL SWITCHING ──────────────────────────────────────
+function switchPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='debug') updateCodeSnippet();
+}
+
+// ─── STATUS BAR ───────────────────────────────────────────
+function setStatus(msg, active=false){
+  document.getElementById('statusMsg').textContent = msg;
+  document.getElementById('statusDot').className = active ? 'status-dot active' : 'status-dot';
+}
+
+// ─── TOAST ────────────────────────────────────────────────
+function toast(msg, type='success'){
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+
+// ─── FILE UPLOAD ──────────────────────────────────────────
+const fileIcons = {pdf:'📕',docx:'📘',xlsx:'📗',csv:'📊',txt:'📄',png:'🖼',jpg:'🖼',jpeg:'🖼',gif:'🖼',webp:'🖼'};
+function handleFile(file){
+  if(!file) return;
+  state.uploadedFile = file;
+  const ext = file.name.split('.').pop().toLowerCase();
+  document.getElementById('fileIcon').textContent = fileIcons[ext]||'📎';
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size/1024).toFixed(1)+' KB';
+  document.getElementById('filePreview').style.display='flex';
+  document.getElementById('dropZone').style.display='none';
+}
+function clearFile(){
+  state.uploadedFile = null;
+  document.getElementById('fileInput').value='';
+  document.getElementById('filePreview').style.display='none';
+  document.getElementById('dropZone').style.display='block';
+}
+
+// drag-over
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('drag-over');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+// ─── CLAUDE CALL (via local server) ──────────────────────
+async function callClaude(messages, system, max_tokens=2000){
+  const res = await fetch('/api/claude', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      apiKey: state.anthropicKey,
+      messages, system, max_tokens
+    })
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data?.error?.message || data?.error || JSON.stringify(data));
+  return data.content[0].text;
+}
+
+// ─── GENERATE & POST ──────────────────────────────────────
+async function generateAndPost(){
+  if(!state.padletKey || !state.boardId){ openModal(); return; }
+  if(!state.anthropicKey){ toast('Anthropic API key required for AI generation','error'); openModal(); return; }
+
+  const prompt = document.getElementById('mainPrompt').value.trim();
+  if(!prompt){ toast('Please describe what you want to post','error'); return; }
+
+  const count = document.getElementById('postCount').value;
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Generating…';
+  setStatus('Generating posts…', true);
+
+  let fileContext = '';
+  if(state.uploadedFile){
+    try{
+      setStatus('Extracting file content…', true);
+      const fd = new FormData();
+      fd.append('file', state.uploadedFile);
+      const r = await fetch('/api/extract-file', {method:'POST', body:fd});
+      const d = await r.json();
+      if(d.type==='text') fileContext = `\n\nFile content from "${d.name}":\n${d.text}`;
+      else if(d.type==='image') fileContext = `\n\n[Image file "${d.name}" attached — describe it as if you can see it and use it as creative inspiration]`;
+    } catch(e){ toast('File extraction failed: '+e.message,'error'); }
+  }
+
+  const system = `You are a Padlet expert and creative content specialist. You generate high-quality, engaging Padlet post content. Always respond with valid JSON only — no markdown, no preamble.`;
+
+  const userMsg = `${prompt}${fileContext}
+
+Generate exactly ${count} Padlet post(s) based on the above.
+Respond ONLY with a JSON array like:
+[
+  {"subject": "Post title", "bodyHtml": "<p>Post body in HTML</p>"},
+  ...
+]
+Keep subjects concise (under 80 chars). Body should be 2–4 sentences, well-written and engaging. Use simple HTML tags only (<p>, <strong>, <em>, <ul>, <li>).`;
+
+  let posts;
+  try{
+    const raw = await callClaude([{role:'user',content:userMsg}], system, 3000);
+    const clean = raw.replace(/```json|```/g,'').trim();
+    posts = JSON.parse(clean);
+    if(!Array.isArray(posts)) throw new Error('Not an array');
+  } catch(e){
+    toast('AI generation failed: '+e.message, 'error');
+    btn.disabled=false; btn.innerHTML='<span>✦ Generate &amp; Post to Padlet</span>';
+    setStatus('Ready'); return;
+  }
+
+  // Show previews
+  const previewSection = document.getElementById('previewSection');
+  const previewList = document.getElementById('previewList');
+  previewSection.style.display='block';
+  previewList.innerHTML = posts.map((p,i)=>`
+    <div class="preview-post" id="pp${i}">
+      <div class="preview-subject">${esc(p.subject)}</div>
+      <div class="preview-body">${p.bodyHtml.replace(/<[^>]+>/g,' ').trim().substring(0,120)}…</div>
+      <div class="preview-status pending" id="ps${i}">Queued</div>
+    </div>
+  `).join('');
+
+  btn.innerHTML = '<div class="spinner"></div> Posting…';
+  setStatus('Posting to Padlet…', true);
+
+  // Post each
+  for(let i=0;i<posts.length;i++){
+    document.getElementById('ps'+i).className='preview-status posting';
+    document.getElementById('ps'+i).textContent='Posting…';
+    try{
+      const r = await fetch('/api/padlet/post',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          padletKey: state.padletKey,
+          boardId: state.boardId,
+          subject: posts[i].subject,
+          bodyHtml: posts[i].bodyHtml
+        })
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d?.errors?.[0]?.detail || `HTTP ${r.status}`);
+      const url = d?.data?.attributes?.webUrl?.live;
+      document.getElementById('ps'+i).className='preview-status done';
+      document.getElementById('ps'+i).textContent='✓ Posted';
+      addLog(posts[i].subject, true, url);
+    } catch(e){
+      document.getElementById('ps'+i).className='preview-status failed';
+      document.getElementById('ps'+i).textContent='✗ Failed: '+e.message;
+      addLog(posts[i].subject, false, null, e.message);
+    }
+    await new Promise(r=>setTimeout(r,350));
+  }
+
+  btn.disabled=false;
+  btn.innerHTML='<span>✦ Generate &amp; Post to Padlet</span>';
+  setStatus('Done — '+posts.length+' post(s) processed');
+  toast('Finished posting!', 'success');
+}
+
+// ─── LOG ──────────────────────────────────────────────────
+function addLog(subject, ok, url, err){
+  document.getElementById('logEmpty').style.display='none';
+  document.getElementById('logList').style.display='block';
+  const div=document.createElement('div');
+  div.className=`log-item ${ok?'success':'error'}`;
+  div.innerHTML=`
+    <div class="log-item-title">${esc(subject)}</div>
+    <div class="log-item-meta">${ok?'Posted successfully':'Failed: '+esc(err||'')}</div>
+    ${url?`<a class="log-link" href="${url}" target="_blank">↗ View post</a>`:''}
+  `;
+  document.getElementById('logList').prepend(div);
+}
+function clearLog(){
+  document.getElementById('logList').innerHTML='';
+  document.getElementById('logList').style.display='none';
+  document.getElementById('logEmpty').style.display='flex';
+}
+
+// ─── SIDEBAR TIPS ─────────────────────────────────────────
+function useTip(card){
+  const prompt = card.querySelector('.tip-desc').dataset.prompt;
+  if(!prompt) return;
+  document.getElementById('mainPrompt').value = prompt;
+  switchPanel('create');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+  document.querySelectorAll('.tab-btn')[2].classList.remove('active');
+}
+
+// ─── CHAT ─────────────────────────────────────────────────
+const PADLET_SYSTEM = `You are an expert on Padlet — the collaborative board platform. You have deep knowledge of:
+- All Padlet board types: wall, canvas, stream, grid, shelf, map, timeline, backchannel
+- The Padlet public API v1 (boards, posts, sections, comments, reactions, organisations, users)
+- API authentication, error handling, rate limiting
+- Creative and educational uses of Padlet (teaching, events, portfolios, storytelling, heritage trails)
+- Code examples in Shell, Node.js, Python, Ruby, PHP
+- Padlet features: polls, AI recipe boards, attachment types, post moderation, custom fields, webhooks, Zapier
+- Troubleshooting common issues
+
+Be helpful, specific, and encourage creative use of Padlet. Format responses clearly with markdown. When showing code, always use code blocks.`;
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  if(!state.anthropicKey){ toast('Anthropic API key required for chat','error'); openModal(); return; }
+
+  appendMessage('user', msg);
+  input.value='';
+  input.style.height='';
+  state.chatHistory.push({role:'user',content:msg});
+
+  const typingId = appendTyping();
+  document.getElementById('chatSend').disabled=true;
+  setStatus('AI thinking…',true);
+
+  try{
+    const reply = await callClaude(state.chatHistory, PADLET_SYSTEM, 2000);
+    removeTyping(typingId);
+    state.chatHistory.push({role:'assistant',content:reply});
+    appendMessage('assistant', reply);
+    setStatus('Ready');
+  } catch(e){
+    removeTyping(typingId);
+    appendMessage('assistant','⚠️ Error: '+e.message);
+    setStatus('Error');
+  }
+  document.getElementById('chatSend').disabled=false;
+}
+
+function quickAsk(q){
+  document.getElementById('chatInput').value=q;
+  sendChat();
+}
+
+function appendMessage(role, content){
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className=`message ${role}`;
+  div.innerHTML=`
+    <div class="message-avatar">${role==='assistant'?'P':'U'}</div>
+    <div class="message-content">${role==='assistant'?renderMd(content):esc(content)}</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function appendTyping(){
+  const msgs = document.getElementById('chatMessages');
+  const id='typing-'+Date.now();
+  const div=document.createElement('div');
+  div.className='message assistant';div.id=id;
+  div.innerHTML=`<div class="message-avatar">P</div><div class="message-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+  return id;
+}
+function removeTyping(id){ const el=document.getElementById(id); if(el) el.remove(); }
+
+function renderMd(text){
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```(\w*)\n([\s\S]*?)```/g,(_,l,c)=>`<pre><code>${c}</code></pre>`)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^#### (.+)$/gm,'<h4>$1</h4>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]+?<\/li>)/g,'<ul>$1</ul>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br/>')
+    .replace(/^(.+)$/,'<p>$1</p>');
+}
+
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,120)+'px';
+}
+
+// ─── DEBUG ────────────────────────────────────────────────
+const snippets = {
+  shell: `# Get board data
+curl -X GET \\
+  "https://api.padlet.dev/v1/boards/{BOARD_ID}?include=posts" \\
+  -H "X-API-KEY: {PADLET_KEY}" \\
+  -H "Accept: application/vnd.api+json"
+
+# Create a post
+curl -X POST \\
+  "https://api.padlet.dev/v1/boards/{BOARD_ID}/posts" \\
+  -H "X-API-KEY: {PADLET_KEY}" \\
+  -H "Content-Type: application/vnd.api+json" \\
+  -d '{
+    "data": {
+      "type": "post",
+      "attributes": {
+        "content": {
+          "subject": "Hello from the API",
+          "bodyHtml": "<p>This was posted via curl.</p>"
+        }
+      }
+    }
+  }'`,
+
+  node: `const fetch = require('node-fetch');
+
+const PADLET_KEY = '{PADLET_KEY}';
+const BOARD_ID   = '{BOARD_ID}';
+
+async function createPost(subject, bodyHtml) {
+  const res = await fetch(
+    \`https://api.padlet.dev/v1/boards/\${BOARD_ID}/posts\`,
+    {
+      method: 'POST',
+      headers: {
+        'X-API-KEY': PADLET_KEY,
+        'Content-Type': 'application/vnd.api+json',
+      },
+      body: JSON.stringify({
+        data: {
+          type: 'post',
+          attributes: { content: { subject, bodyHtml } },
+        },
+      }),
+    }
+  );
+  return res.json();
+}
+
+createPost('My Post', '<p>Hello Padlet!</p>').then(console.log);`,
+
+  python: `import requests
+
+PADLET_KEY = '{PADLET_KEY}'
+BOARD_ID   = '{BOARD_ID}'
+
+def create_post(subject, body_html):
+    url = f"https://api.padlet.dev/v1/boards/{BOARD_ID}/posts"
+    headers = {
+        "X-API-KEY": PADLET_KEY,
+        "Content-Type": "application/vnd.api+json",
+    }
+    payload = {
+        "data": {
+            "type": "post",
+            "attributes": {
+                "content": {
+                    "subject": subject,
+                    "bodyHtml": body_html,
+                }
+            }
+        }
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+result = create_post("Hello from Python", "<p>Posted via API!</p>")
+print(result)`,
+
+  ruby: `require 'net/http'
+require 'json'
+require 'uri'
+
+PADLET_KEY = '{PADLET_KEY}'
+BOARD_ID   = '{BOARD_ID}'
+
+def create_post(subject, body_html)
+  uri = URI("https://api.padlet.dev/v1/boards/#{BOARD_ID}/posts")
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+
+  req = Net::HTTP::Post.new(uri)
+  req['X-API-KEY'] = PADLET_KEY
+  req['Content-Type'] = 'application/vnd.api+json'
+  req.body = {
+    data: {
+      type: 'post',
+      attributes: { content: { subject:, bodyHtml: body_html } }
+    }
+  }.to_json
+
+  JSON.parse(http.request(req).body)
+end
+
+puts create_post("Hello from Ruby", "<p>Posted via API!</p>")`,
+
+  php: `<?php
+$padletKey = '{PADLET_KEY}';
+$boardId   = '{BOARD_ID}';
+
+function createPost($padletKey, $boardId, $subject, $bodyHtml) {
+    $url = "https://api.padlet.dev/v1/boards/$boardId/posts";
+    $payload = json_encode([
+        'data' => [
+            'type' => 'post',
+            'attributes' => [
+                'content' => [
+                    'subject'  => $subject,
+                    'bodyHtml' => $bodyHtml,
+                ],
+            ],
+        ],
+    ]);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            "X-API-KEY: $padletKey",
+            'Content-Type: application/vnd.api+json',
+        ],
+    ]);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($result, true);
+}
+
+print_r(createPost($padletKey, $boardId, 'Hello from PHP', '<p>Posted via API!</p>'));`
+};
+
+let currentLang='shell';
+function switchLang(lang, btn){
+  currentLang=lang;
+  document.querySelectorAll('.lang-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateCodeSnippet();
+}
+function updateCodeSnippet(){
+  const code = snippets[currentLang]
+    .replace(/\{PADLET_KEY\}/g, state.padletKey||'YOUR_PADLET_KEY')
+    .replace(/\{BOARD_ID\}/g, state.boardId||'YOUR_BOARD_ID');
+  document.getElementById('codeBlock').textContent = code;
+}
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('codeBlock').textContent);
+  toast('Snippet copied!','success');
+}
+
+async function testConnection(){
+  if(!state.padletKey||!state.boardId){ toast('Set your credentials first','error'); openModal(); return; }
+  const el=document.getElementById('connResult');
+  el.className='test-result visible loading';el.style.background='var(--accent-soft)';el.style.color='var(--accent)';
+  el.textContent='Testing…';
+  try{
+    const r=await fetch('/api/padlet/board',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({padletKey:state.padletKey,boardId:state.boardId})
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d?.errors?.[0]?.detail||`HTTP ${r.status}`);
+    const title=d?.data?.attributes?.title||'Untitled board';
+    const postCount=d?.included?.filter(i=>i.type==='post')?.length??'N/A';
+    el.className='test-result visible success';
+    el.textContent=`✓ Connected!\nBoard: "${title}"\nPosts: ${postCount}`;
+  } catch(e){
+    el.className='test-result visible error';
+    el.textContent='✗ '+e.message;
+  }
+}
+
+async function diagnoseError(){
+  if(!state.anthropicKey){ toast('Anthropic key needed to diagnose','error'); return; }
+  const input=document.getElementById('debugInput').value.trim();
+  if(!input){ toast('Paste an error or response first','error'); return; }
+  const el=document.getElementById('diagResult');
+  el.className='test-result visible';el.style.background='var(--accent-soft)';el.style.color='var(--accent)';
+  el.textContent='Diagnosing…';
+  try{
+    const reply=await callClaude([{role:'user',content:`You are a Padlet API expert. Diagnose this error or API response and explain what went wrong and how to fix it:\n\n${input}`}],null,800);
+    el.className='test-result visible success';el.textContent=reply;
+  } catch(e){
+    el.className='test-result visible error';el.textContent='Failed: '+e.message;
+  }
+}
+
+// ─── UTILS ───────────────────────────────────────────────
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ─── INIT ─────────────────────────────────────────────────
+updateCodeSnippet();
+updateCredStatus();
+</script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0e0c;
+    --surface: #1a1917;
+    --surface2: #222120;
+    --border: #2e2c2a;
+    --accent: #f4722b;
+    --accent2: #ffd166;
+    --text: #f0ede8;
+    --muted: #7a756e;
+    --success: #4caf7d;
+    --error: #e05c5c;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 36px;
+  }
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--text);
+  }
+  .header h1 span {
+    color: var(--accent);
+  }
+  .header p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Setup card */
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  .setup-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .setup-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .setup-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(244, 114, 43, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(244, 114, 43, 0.3);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .setup-badge.ready {
+    background: rgba(76, 175, 125, 0.12);
+    color: var(--success);
+    border-color: rgba(76, 175, 125, 0.3);
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+  input, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.6;
+  }
+  input[type="password"] {
+    font-family: monospace;
+    letter-spacing: 0.1em;
+  }
+
+  /* Prompt area */
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  .prompt-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  textarea {
+    resize: none;
+    min-height: 110px;
+    line-height: 1.6;
+  }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.02em;
+    margin-top: 14px;
+  }
+  .btn:hover:not(:disabled) {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Status */
+  .status {
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 14px;
+    display: none;
+  }
+  .status.visible { display: block; }
+  .status.loading {
+    background: rgba(244, 114, 43, 0.08);
+    border: 1px solid rgba(244, 114, 43, 0.2);
+    color: var(--accent);
+  }
+  .status.success {
+    background: rgba(76, 175, 125, 0.08);
+    border: 1px solid rgba(76, 175, 125, 0.25);
+    color: var(--success);
+  }
+  .status.error {
+    background: rgba(224, 92, 92, 0.08);
+    border: 1px solid rgba(224, 92, 92, 0.25);
+    color: var(--error);
+  }
+
+  .post-preview {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+    display: none;
+  }
+  .post-preview.visible { display: block; }
+  .post-preview-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .post-preview-subject {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .post-preview-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .dot-loader {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .dot-loader span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: blink 1.2s infinite;
+  }
+  .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; }
+  }
+
+  .log {
+    margin-top: 8px;
+    font-size: 12px;
+    opacity: 0.7;
+    font-style: italic;
+  }
+
+  /* Post link */
+  .post-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--success);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(76,175,125,0.4);
+  }
+
+  /* History */
+  .history {
+    margin-top: 24px;
+  }
+  .history-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .history-subject {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .history-body {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .history-dot {
+    width: 8px; height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-eyebrow">Padlet API</div>
+    <h1>Post from<br/><span>your prompt.</span></h1>
+    <p>Type what you want to post. Claude will shape it into a subject and body, then send it straight to your Padlet board.</p>
+  </div>
+
+  <!-- Setup -->
+  <div class="setup-card">
+    <div class="setup-card-header">
+      <div class="setup-title">Credentials</div>
+      <div class="setup-badge" id="setupBadge">Not configured</div>
+    </div>
+    <div class="field">
+      <label>Padlet API Key</label>
+      <input type="password" id="apiKey" placeholder="Enter your X-API-KEY" oninput="checkSetup()"/>
+    </div>
+    <div class="field">
+      <label>Board ID</label>
+      <input type="text" id="boardId" placeholder="e.g. abcd1234efgh5678" oninput="checkSetup()"/>
+    </div>
+  </div>
+
+  <!-- Prompt -->
+  <div class="prompt-card">
+    <div class="prompt-label">What do you want to post?</div>
+    <textarea id="promptInput" placeholder="e.g. A quick note about the importance of design thinking in education, with a warm and encouraging tone..."></textarea>
+    <button class="btn" id="postBtn" onclick="handlePost()" disabled>
+      ✦ Generate &amp; Post to Padlet
+    </button>
+  </div>
+
+  <!-- Status -->
+  <div class="status" id="status"></div>
+
+  <!-- Preview of generated post -->
+  <div class="post-preview" id="postPreview">
+    <div class="post-preview-label">Generated Post</div>
+    <div class="post-preview-subject" id="previewSubject"></div>
+    <div class="post-preview-body" id="previewBody"></div>
+  </div>
+
+  <!-- History -->
+  <div class="history" id="historySection" style="display:none;">
+    <hr class="divider"/>
+    <div class="history-title">Posted this session</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+  let postHistory = [];
+
+  function checkSetup() {
+    const key = document.getElementById('apiKey').value.trim();
+    const board = document.getElementById('boardId').value.trim();
+    const badge = document.getElementById('setupBadge');
+    const btn = document.getElementById('postBtn');
+    const ready = key.length > 0 && board.length > 0;
+    badge.textContent = ready ? 'Ready' : 'Not configured';
+    badge.className = ready ? 'setup-badge ready' : 'setup-badge';
+    btn.disabled = !ready;
+  }
+
+  function setStatus(type, html) {
+    const el = document.getElementById('status');
+    el.className = 'status visible ' + type;
+    el.innerHTML = html;
+  }
+
+  function hideStatus() {
+    document.getElementById('status').className = 'status';
+  }
+
+  function showPreview(subject, body) {
+    document.getElementById('previewSubject').textContent = subject;
+    document.getElementById('previewBody').textContent = body;
+    document.getElementById('postPreview').className = 'post-preview visible';
+  }
+
+  function hidePreview() {
+    document.getElementById('postPreview').className = 'post-preview';
+  }
+
+  function addToHistory(subject, body) {
+    postHistory.unshift({ subject, body });
+    document.getElementById('historySection').style.display = 'block';
+    const list = document.getElementById('historyList');
+    list.innerHTML = postHistory.map(p => `
+      <div class="history-item">
+        <div>
+          <div class="history-subject">${escapeHtml(p.subject)}</div>
+          <div class="history-body">${escapeHtml(p.body.substring(0, 100))}${p.body.length > 100 ? '…' : ''}</div>
+        </div>
+        <div class="history-dot"></div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function handlePost() {
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const boardId = document.getElementById('boardId').value.trim();
+    const prompt = document.getElementById('promptInput').value.trim();
+
+    if (!prompt) {
+      setStatus('error', '⚠️ Please enter a prompt first.');
+      return;
+    }
+
+    const btn = document.getElementById('postBtn');
+    btn.disabled = true;
+    hidePreview();
+
+    // Step 1: Generate post content via Claude
+    setStatus('loading', `<div style="display:flex;align-items:center;gap:8px;"><div class="dot-loader"><span></span><span></span><span></span></div> Asking Claude to craft your post…</div>`);
+
+    let subject, bodyText;
+
+    try {
+      const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: `You are helping create a Padlet post. Based on the user's prompt below, generate a post with a clear, engaging subject line and a well-written body. 
+
+Respond ONLY with valid JSON in this exact format, no preamble or markdown:
+{"subject": "Your subject here", "body": "Your body text here"}
+
+User prompt: ${prompt}`
+          }]
+        })
+      });
+
+      const claudeData = await claudeRes.json();
+      const raw = claudeData.content?.[0]?.text?.trim();
+      const parsed = JSON.parse(raw);
+      subject = parsed.subject;
+      bodyText = parsed.body;
+
+      if (!subject || !bodyText) throw new Error('Invalid response format');
+
+    } catch (err) {
+      setStatus('error', `❌ Failed to generate post content. ${err.message}`);
+      btn.disabled = false;
+      return;
+    }
+
+    // Show preview
+    showPreview(subject, bodyText);
+    setStatus('loading', `<div style="display:flex;align-items:center;gap:8px;"><div class="dot-loader"><span></span><span></span><span></span></div> Sending to your Padlet board…</div>`);
+
+    // Step 2: Post to Padlet
+    try {
+      const padletRes = await fetch(`https://api.padlet.dev/v1/boards/${boardId}/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/vnd.api+json',
+          'X-API-KEY': apiKey
+        },
+        body: JSON.stringify({
+          data: {
+            type: 'post',
+            attributes: {
+              content: {
+                subject: subject,
+                bodyHtml: `<p>${bodyText.replace(/\n/g, '</p><p>')}</p>`
+              }
+            }
+          }
+        })
+      });
+
+      if (!padletRes.ok) {
+        const errData = await padletRes.json().catch(() => ({}));
+        const errMsg = errData?.errors?.[0]?.detail || errData?.errors?.[0]?.title || `HTTP ${padletRes.status}`;
+        throw new Error(errMsg);
+      }
+
+      const result = await padletRes.json();
+      const postUrl = result?.data?.attributes?.webUrl?.live;
+
+      setStatus('success', `
+        ✅ Posted successfully!
+        ${postUrl ? `<br/><a class="post-link" href="${postUrl}" target="_blank">↗ View on Padlet</a>` : ''}
+      `);
+      addToHistory(subject, bodyText);
+      document.getElementById('promptInput').value = '';
+
+    } catch (err) {
+      setStatus('error', `❌ Padlet API error: ${err.message}`);
+    }
+
+    btn.disabled = false;
+    checkSetup();
+  }
+</script>
+</body>
+</html>
