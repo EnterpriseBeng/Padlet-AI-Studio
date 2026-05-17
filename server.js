@@ -2,7 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
@@ -149,14 +148,39 @@ app.post('/api/extract-file', upload.single('file'), async (req, res) => {
       const mammoth = require('mammoth');
       const result = await mammoth.extractRawText({ buffer });
       text = result.value;
-    } else if (mimetype.includes('spreadsheetml') || mimetype === 'text/csv') {
-      const XLSX = require('xlsx');
-      const wb = XLSX.read(buffer, { type: 'buffer' });
-      const sheets = wb.SheetNames.map(name => {
-        const ws = wb.Sheets[name];
-        return `Sheet: ${name}\n${XLSX.utils.sheet_to_csv(ws)}`;
+    } else if (mimetype.includes('spreadsheetml')) {
+      const ExcelJS = require('exceljs');
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+
+      const sheets = [];
+      workbook.eachSheet((worksheet) => {
+        const rows = [];
+        worksheet.eachRow({ includeEmpty: false }, (row) => {
+          const values = row.values.slice(1).map((value) => {
+            if (value == null) return '';
+            if (typeof value === 'object') {
+              if (value.richText) return value.richText.map((item) => item.text).join('');
+              if (value.text) return value.text;
+              if (value.result != null) return String(value.result);
+              if (value.hyperlink) return value.hyperlink;
+              return JSON.stringify(value);
+            }
+            return String(value);
+          });
+
+          const escaped = values.map((value) =>
+            /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
+          );
+          rows.push(escaped.join(','));
+        });
+
+        sheets.push(`Sheet: ${worksheet.name}\n${rows.join('\n')}`);
       });
+
       text = sheets.join('\n\n');
+    } else if (mimetype === 'text/csv') {
+      text = buffer.toString('utf-8');
     } else if (mimetype === 'text/plain') {
       text = buffer.toString('utf-8');
     } else if (mimetype.startsWith('image/')) {
