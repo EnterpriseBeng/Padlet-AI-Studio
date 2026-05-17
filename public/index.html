@@ -590,9 +590,9 @@ textarea.prompt-area::placeholder{color:var(--text3);}
     Padlet AI Studio
   </div>
   <div class="topbar-tabs">
-    <button class="tab-btn active" onclick="switchPanel('create')">✦ Create Posts</button>
-    <button class="tab-btn" onclick="switchPanel('chat')">⬡ AI Assistant</button>
-    <button class="tab-btn" onclick="switchPanel('debug')">⌥ Debug & Code</button>
+    <button class="tab-btn active" data-panel="create" onclick="switchPanel('create')">✦ Create Posts</button>
+    <button class="tab-btn" data-panel="chat" onclick="switchPanel('chat')">⬡ AI Assistant</button>
+    <button class="tab-btn" data-panel="debug" onclick="switchPanel('debug')">⌥ Debug & Code</button>
   </div>
   <div class="topbar-right">
     <span class="cred-status" id="credStatus" onclick="openModal()">⚠ Set credentials</span>
@@ -863,11 +863,35 @@ const state = {
   chatHistory: [],
 };
 
+const CREDS_STORAGE_KEY = 'padlet-ai-studio-creds';
+
+function persistCreds(){
+  sessionStorage.setItem(CREDS_STORAGE_KEY, JSON.stringify({
+    anthropicKey: state.anthropicKey,
+    padletKey: state.padletKey,
+    boardId: state.boardId
+  }));
+}
+
+function loadPersistedCreds(){
+  try{
+    const raw = sessionStorage.getItem(CREDS_STORAGE_KEY);
+    if(!raw) return;
+    const creds = JSON.parse(raw);
+    state.anthropicKey = String(creds.anthropicKey || '');
+    state.padletKey = String(creds.padletKey || '');
+    state.boardId = String(creds.boardId || '');
+  } catch(_err){
+    sessionStorage.removeItem(CREDS_STORAGE_KEY);
+  }
+}
+
 // ─── CREDENTIALS ─────────────────────────────────────────
 function syncCreds(){
   state.anthropicKey = document.getElementById('sideAnthropicKey').value.trim();
   state.padletKey    = document.getElementById('sidePadletKey').value.trim();
   state.boardId      = document.getElementById('sideBoardId').value.trim();
+  persistCreds();
   updateCredStatus();
   updateCodeSnippet();
 }
@@ -891,6 +915,7 @@ function saveModal(){
   document.getElementById('sideAnthropicKey').value = state.anthropicKey;
   document.getElementById('sidePadletKey').value    = state.padletKey;
   document.getElementById('sideBoardId').value      = state.boardId;
+  persistCreds();
   updateCredStatus();
   updateCodeSnippet();
   closeModal();
@@ -902,7 +927,8 @@ function switchPanel(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  event.target.classList.add('active');
+  const tab = document.querySelector(`.tab-btn[data-panel="${id}"]`);
+  if(tab) tab.classList.add('active');
   if(id==='debug') updateCodeSnippet();
 }
 
@@ -979,6 +1005,7 @@ async function generateAndPost(){
   setStatus('Generating posts…', true);
 
   let fileContext = '';
+  let generationContent;
   if(state.uploadedFile){
     try{
       setStatus('Extracting file content…', true);
@@ -987,7 +1014,19 @@ async function generateAndPost(){
       const r = await fetch('/api/extract-file', {method:'POST', body:fd});
       const d = await r.json();
       if(d.type==='text') fileContext = `\n\nFile content from "${d.name}":\n${d.text}`;
-      else if(d.type==='image') fileContext = `\n\n[Image file "${d.name}" attached — describe it as if you can see it and use it as creative inspiration]`;
+      else if(d.type==='image') {
+        generationContent = [
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: d.mimetype,
+              data: d.base64
+            }
+          }
+        ];
+        fileContext = `\n\nUse the uploaded image "${d.name}" as direct visual context and inspiration for the generated posts.`;
+      }
     } catch(e){ toast('File extraction failed: '+e.message,'error'); }
   }
 
@@ -1005,7 +1044,12 @@ Keep subjects concise (under 80 chars). Body should be 2–4 sentences, well-wri
 
   let posts;
   try{
-    const raw = await callClaude([{role:'user',content:userMsg}], system, 3000);
+    const raw = await callClaude([{
+      role:'user',
+      content: generationContent
+        ? [...generationContent, { type: 'text', text: userMsg }]
+        : userMsg
+    }], system, 3000);
     const clean = raw.replace(/```json|```/g,'').trim();
     posts = JSON.parse(clean);
     if(!Array.isArray(posts)) throw new Error('Not an array');
@@ -1090,9 +1134,6 @@ function useTip(card){
   if(!prompt) return;
   document.getElementById('mainPrompt').value = prompt;
   switchPanel('create');
-  document.querySelectorAll('.tab-btn')[0].classList.add('active');
-  document.querySelectorAll('.tab-btn')[1].classList.remove('active');
-  document.querySelectorAll('.tab-btn')[2].classList.remove('active');
 }
 
 // ─── CHAT ─────────────────────────────────────────────────
@@ -1387,6 +1428,10 @@ async function diagnoseError(){
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ─── INIT ─────────────────────────────────────────────────
+loadPersistedCreds();
+document.getElementById('sideAnthropicKey').value = state.anthropicKey;
+document.getElementById('sidePadletKey').value = state.padletKey;
+document.getElementById('sideBoardId').value = state.boardId;
 updateCodeSnippet();
 updateCredStatus();
 </script>

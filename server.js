@@ -4,32 +4,32 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
-const app = express();
-const PORT = 3000;
+function createApp() {
+  const app = express();
 
-app.use(cors());
-app.use(express.json({ limit: '20mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+  app.use(cors());
+  app.use(express.json({ limit: '20mb' }));
+  app.use(express.static(path.join(__dirname, 'public')));
 
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
-  limits: { fileSize: 20 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/plain',
-      'text/csv',
-      'image/jpeg','image/png','image/gif','image/webp'
-    ];
-    cb(null, allowed.includes(file.mimetype));
-  }
-});
+  const storage = multer.memoryStorage();
+  const upload = multer({
+    storage,
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+      const allowed = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'text/csv',
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp'
+      ];
+      cb(null, allowed.includes(file.mimetype));
+    }
+  });
 
-// ── Anthropic proxy ──────────────────────────────────────────────────────────
-app.post('/api/claude', async (req, res) => {
+  // ── Anthropic proxy ──────────────────────────────────────────────────────────
+  app.post('/api/claude', async (req, res) => {
   const { apiKey, messages, system, max_tokens = 2000 } = req.body;
   if (!apiKey) return res.status(400).json({ error: 'Anthropic API key required' });
 
@@ -57,10 +57,10 @@ app.post('/api/claude', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+  });
 
-// ── Padlet: Get Board ─────────────────────────────────────────────────────────
-app.post('/api/padlet/board', async (req, res) => {
+  // ── Padlet: Get Board ─────────────────────────────────────────────────────────
+  app.post('/api/padlet/board', async (req, res) => {
   const { padletKey, boardId } = req.body;
   try {
     const r = await fetch(
@@ -73,10 +73,10 @@ app.post('/api/padlet/board', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+  });
 
-// ── Padlet: Create Post ───────────────────────────────────────────────────────
-app.post('/api/padlet/post', async (req, res) => {
+  // ── Padlet: Create Post ───────────────────────────────────────────────────────
+  app.post('/api/padlet/post', async (req, res) => {
   const { padletKey, boardId, subject, bodyHtml, attachmentUrl } = req.body;
   const content = { subject, bodyHtml };
   if (attachmentUrl) content.attachment = { url: attachmentUrl };
@@ -96,10 +96,10 @@ app.post('/api/padlet/post', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+  });
 
-// ── Padlet: Create Multiple Posts ─────────────────────────────────────────────
-app.post('/api/padlet/posts-bulk', async (req, res) => {
+  // ── Padlet: Create Multiple Posts ─────────────────────────────────────────────
+  app.post('/api/padlet/posts-bulk', async (req, res) => {
   const { padletKey, boardId, posts } = req.body;
   const results = [];
 
@@ -131,10 +131,10 @@ app.post('/api/padlet/posts-bulk', async (req, res) => {
     }
   }
   res.json({ results });
-});
+  });
 
-// ── File Upload + Extract Text ────────────────────────────────────────────────
-app.post('/api/extract-file', upload.single('file'), async (req, res) => {
+  // ── File Upload + Extract Text ────────────────────────────────────────────────
+  app.post('/api/extract-file', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   const { mimetype, buffer, originalname } = req.file;
@@ -173,12 +173,24 @@ app.post('/api/extract-file', upload.single('file'), async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: `Failed to parse file: ${err.message}` });
   }
-});
+  });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
 
-app.listen(PORT, () => {
-  console.log(`Padlet AI Studio running at http://localhost:${PORT}`);
-});
+  return app;
+}
+
+function startServer(port = process.env.PORT || 3000) {
+  const app = createApp();
+  return app.listen(port, () => {
+    console.log(`Padlet AI Studio running at http://localhost:${port}`);
+  });
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { createApp, startServer };
